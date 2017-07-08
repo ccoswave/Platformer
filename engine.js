@@ -151,18 +151,26 @@ function Marble(inputs) {
 Marble.prototype.update = function () {
   this.ctrl.update()
   this.xsp += this.ctrl.move[0]
-  this.x += this.xsp
-  this.y += this.ysp
+  if (map.check(this.x+this.xsp,this.y)) {
+    this.xsp=0} else {this.x += this.xsp}
+  if (map.check(this.x,this.y+this.ysp)) {
+    this.ysp=0} else {this.y += this.ysp}
+    this.y += this.ysp
   this.xsp = this.xsp/1.1
 
   if (this.cooldown>0) {this.cooldown--}
   if (this.ctrl._A) {
     audio.play();
     this.strike = 16}
-  
   while (map.check(this.x,this.y)) { //land on floor precisely
     this.y++
     this.ysp=0}
+  wallhit=0
+  if (!this.xsp==0) {
+    while (map.check(this.x+this.xsp,this.y)) { //hit walls precisely
+           if (this.xsp>0) {this.x--;wallhit=true}
+      else if (this.xsp<0) {this.x++;wallhit=true}}
+    if (wallhit) {this.xsp = 0;wallhit=false}}
   if (map.check(this.x,this.y-1)&&!map.check(this.x,this.y)) {
     if (this.ctrl.jump) {this.ysp = 10}} // jump
   else { // fall
@@ -196,7 +204,7 @@ function Camera() {
 
 function reset() {
   console.log('reset')
-  map = new Map(32,32)
+  map = new Map(16,32)
   objects = []  
   marble = new Marble(new Controller())  
   objects.push(marble)
@@ -205,7 +213,7 @@ function reset() {
 reset()
 var t=0
 
-var map = new Map(32,32)
+var map = new Map(8,8)
 var camera = new Camera()
 var marble = new Marble(new Controller())
 var objects = []
