@@ -73,6 +73,12 @@ window.addEventListener('keyup',keyup,false)
 // sounds
 var audio = new Audio('wntic.wav');
 
+// images
+var bricktile = new Image();
+bricktile.src = "bricktile.png";
+var droplet = new Image();
+droplet.src = "droplet.png";
+
 function rr() {
   return Math.floor(Math.random()*2)}
 
@@ -88,14 +94,27 @@ Map.prototype.check = function (x,y) {
   else {
     return false}}
 Map.prototype.render = function () {
-  tsize = this.tsize
+  tsize = 34
   for (n=0;n<this.w*this.h;n++) {
-    ctx.fillStyle = '#222288'
-    ctx.strokeStyle = '#000000'
-    if (this.mtx[n]) {ctx.fillRect((n%this.w)*tsize-marble.x+W/2,
-      -Math.floor(n/this.w)*tsize+marble.y+H/2-32,tsize,tsize)}
-    ctx.strokeRect((n%this.w)*tsize-marble.x+W/2,
-      -Math.floor(n/this.w)*tsize+marble.y+H/2-32,tsize,tsize)}}
+    if (this.mtx[n]) {
+      ctx.drawImage(
+        bricktile,
+        34,0,    //x,y on tiles
+        34,34,  //w,h on tiles
+                     (n%this.w)*32-marble.x+W/2,
+          -Math.floor(n/this.w)*32+marble.y+H/2,
+        //W/2-9,H/2-14-this.z,    //x,y on canvas
+        34,34)}}
+  for (n=0;n<this.w*this.h;n++) {
+    if (this.mtx[n]) {
+      ctx.drawImage(
+        bricktile,
+        0,0,    //x,y on tiles
+        34,34,  //w,h on tiles
+                     (n%this.w)*32-marble.x+W/2,
+          -Math.floor(n/this.w)*32+marble.y+H/2,
+        //W/2-9,H/2-14-this.z,    //x,y on canvas
+        34,34)}}}
 
 
 function Controller() {
@@ -153,13 +172,19 @@ Marble.prototype.update = function () {
 Marble.prototype.render = function () {
   ctx.fillStyle = '#000000'
   if (map.check(this.x,this.y)) {ctx.fillStyle = '#8888ff'}
-  ctx.beginPath();
-  ctx.arc(H/2,W/2,16,0,2*Math.PI);
-  ctx.fill()
-  ctx.strokeStyle = '#000000'
-  ctx.beginPath();
-  ctx.arc(H/2,W/2,16+this.cooldown,0,2*Math.PI);
-  ctx.stroke()
+  ctx.drawImage(
+    droplet,
+    0,0,    //x,y on tiles
+    34,34,  //w,h on tiles
+    W/2,H/2, //x,y on canvas
+    34,34)
+  //ctx.beginPath();
+  //ctx.arc(H/2,W/2,16,0,2*Math.PI);
+  //ctx.fill()
+  //ctx.strokeStyle = '#000000'
+  //ctx.beginPath();
+  //ctx.arc(H/2,W/2,16+this.cooldown,0,2*Math.PI);
+  //ctx.stroke()
 }
 
 
@@ -172,7 +197,7 @@ function Camera() {
 
 function reset() {
   console.log('reset')
-  map = new Map(32,8)
+  map = new Map(32,32)
   objects = []  
   marble = new Marble(new Controller())  
   objects.push(marble)
@@ -181,7 +206,7 @@ function reset() {
 reset()
 var t=0
 
-var map = new Map(32,8)
+var map = new Map(32,32)
 var camera = new Camera()
 var marble = new Marble(new Controller())
 var objects = []
@@ -192,8 +217,9 @@ function execute () {
     ctx.lineCap = 'round';
     ctx.lineWidth = 2
     ctx.strokeStyle = '#332722'
-    ctx.fillStyle = '#332722'
+    ctx.fillStyle = '#eef2ec'
     ctx.clearRect(0,0,W,H)
+    ctx.fillRect(0,0,W,H)
     ctx.strokeRect(0,0,W,H)
     ctx.lineWidth = 2
 
