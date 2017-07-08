@@ -99,22 +99,22 @@ Map.prototype.render = function () {
     if (this.mtx[n]) {
       ctx.drawImage(
         bricktile,
-        34,0,    //x,y on tiles
-        34,34,  //w,h on tiles
-                     (n%this.w)*32-marble.x+W/2,
-          -Math.floor(n/this.w)*32+marble.y+H/2,
+        36,0,    //x,y on tiles
+        36,36,  //w,h on tiles
+                     (n%this.w)*32-marble.x+W/2-2,
+          -Math.floor(n/this.w)*32+marble.y+H/2-2,
         //W/2-9,H/2-14-this.z,    //x,y on canvas
-        34,34)}}
+        36,36)}}
   for (n=0;n<this.w*this.h;n++) {
     if (this.mtx[n]) {
       ctx.drawImage(
         bricktile,
         0,0,    //x,y on tiles
-        34,34,  //w,h on tiles
-                     (n%this.w)*32-marble.x+W/2,
-          -Math.floor(n/this.w)*32+marble.y+H/2,
+        36,36,  //w,h on tiles
+                     (n%this.w)*32-marble.x+W/2-2,
+          -Math.floor(n/this.w)*32+marble.y+H/2-2,
         //W/2-9,H/2-14-this.z,    //x,y on canvas
-        34,34)}}}
+        36,36)}}}
 
 
 function Controller() {
@@ -144,14 +144,13 @@ function Marble(inputs) {
   this.type = 'Marble'
   this.ctrl = inputs
   this.x = 16
-  this.y = map.h+64
+  this.y = map.h*32+64
   this.xsp = 0
   this.ysp = 0
   this.cooldown = 0}
 Marble.prototype.update = function () {
   this.ctrl.update()
   this.xsp += this.ctrl.move[0]
-  this.ysp += this.ctrl.move[1]
   this.x += this.xsp
   this.y += this.ysp
   this.xsp = this.xsp/1.1
@@ -176,7 +175,7 @@ Marble.prototype.render = function () {
     droplet,
     0,0,    //x,y on tiles
     34,34,  //w,h on tiles
-    W/2,H/2, //x,y on canvas
+    W/2-17,H/2-1, //x,y on canvas
     34,34)
   //ctx.beginPath();
   //ctx.arc(H/2,W/2,16,0,2*Math.PI);
@@ -224,14 +223,14 @@ function execute () {
     ctx.lineWidth = 2
 
     ctx.strokeStyle = '#665544'
-    map.render()
-
+    
     ctx.font = "12pt courier";
     for (o=0;o<objects.length;o++) {
       objects[o].update()}
     for (o=0;o<objects.length;o++) {
       objects[o].render()}
-    
+    map.render()
+
     resetKeys()
     t++
     setTimeout(loop,30)}
