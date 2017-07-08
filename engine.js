@@ -93,9 +93,9 @@ Map.prototype.render = function () {
     ctx.fillStyle = '#222288'
     ctx.strokeStyle = '#000000'
     if (this.mtx[n]) {ctx.fillRect((n%this.w)*tsize-marble.x+W/2,
-      -Math.floor(n/this.w)*tsize+marble.y+H/2,tsize,tsize)}
+      -Math.floor(n/this.w)*tsize+marble.y+H/2-32,tsize,tsize)}
     ctx.strokeRect((n%this.w)*tsize-marble.x+W/2,
-      -Math.floor(n/this.w)*tsize+marble.y+H/2,tsize,tsize)}}
+      -Math.floor(n/this.w)*tsize+marble.y+H/2-32,tsize,tsize)}}
 
 
 function Controller() {
@@ -115,15 +115,20 @@ Controller.prototype.update = function () {
   }
 
 
+
+
+
+
+
+
 function Marble(inputs) {
   this.type = 'Marble'
   this.ctrl = inputs
   this.x = 16
-  this.y = 16
+  this.y = map.h+64
   this.xsp = 0
   this.ysp = 0
-  this.strike = 0
-  this.health = 100}
+  this.cooldown = 0}
 Marble.prototype.update = function () {
   this.ctrl.update()
   this.xsp += this.ctrl.move[0]
@@ -131,30 +136,20 @@ Marble.prototype.update = function () {
   this.x += this.xsp
   this.y += this.ysp
   this.xsp = this.xsp/1.1
-  this.ysp = this.ysp/1.1
-  if (this.strike>0) {this.strike--}
-  //if (this.strike==0) {
+
+  if (this.cooldown>0) {this.cooldown--}
   if (this.ctrl._A) {
     audio.play();
     this.strike = 16}
-  chk = map.check(this.x,this.y)
-  if (this.y==0&&chk) {
-    if (this.ctrl.jump) {this.ysp = 10}}
-  else if (this.y>0||!chk) {this.ysp--} 
-  this.y += this.ysp
-  if (this.y<0||chk) {
-    this.ysp=0
-    this.y=0}
-  for (oc=0;oc<objects.length;oc++) {
-    tgt = objects[oc]
-    if (tgt!=this&&tgt.strike==16&&dist(this,tgt)<=32) {this.health-=10}}
   
-  for (oc=0;oc<objects.length;oc++) {
-    if (objects[oc]!=this) {
-      if (objects[oc].type=='drone') {
-        if (abs(objects[oc].x-this.x)<16
-          &&abs(objects[oc].y-this.y)<16) {}}}}
-  if (this.health<=0) {this.x=0;this.y=0;reset()}}
+  while (map.check(this.x,this.y)) { //land on floor precisely
+    this.y++
+    this.ysp=0}
+  if (map.check(this.x,this.y-1)&&!map.check(this.x,this.y)) {
+    if (this.ctrl.jump) {this.ysp = 10}} // jump
+  else { // fall
+    this.ysp--
+    this.y += this.ysp} }
 Marble.prototype.render = function () {
   ctx.fillStyle = '#000000'
   if (map.check(this.x,this.y)) {ctx.fillStyle = '#8888ff'}
@@ -163,18 +158,21 @@ Marble.prototype.render = function () {
   ctx.fill()
   ctx.strokeStyle = '#000000'
   ctx.beginPath();
-  ctx.arc(H/2,W/2,16+this.strike,0,2*Math.PI);
+  ctx.arc(H/2,W/2,16+this.cooldown,0,2*Math.PI);
   ctx.stroke()
 }
+
+
+
+
+
 
 function Camera() {
   this.x = 0}
 
-
-
 function reset() {
   console.log('reset')
-  map = new Map(8,8)
+  map = new Map(32,8)
   objects = []  
   marble = new Marble(new Controller())  
   objects.push(marble)
@@ -183,7 +181,7 @@ function reset() {
 reset()
 var t=0
 
-var map = new Map(8,8)
+var map = new Map(32,8)
 var camera = new Camera()
 var marble = new Marble(new Controller())
 var objects = []
