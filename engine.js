@@ -167,15 +167,16 @@ Marble.prototype.update = function () {
   this.x+=this.xc
   this.y+=this.yc
 
-
-  this.x += this.xsp
-  this.xsp = this.xsp/1.1
-
   if (map.check(this.x,this.y-1)&&!map.check(this.x,this.y+1)) {
     if (this.ctrl.jump) {this.ysp = 20}} // jump
   else { // fall
     this.ysp--} 
   this.y += this.ysp
+
+  this.x += this.xsp
+  this.xsp = this.xsp/1.1
+
+  
   if (this.y<=32) {reset()}}
 Marble.prototype.render = function () {
   ctx.fillStyle = '#000000'
