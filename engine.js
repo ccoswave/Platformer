@@ -41,7 +41,7 @@ function resetKeys () {
   k_ctrl_down = false
   k_A_down = false
 }
-
+frame_rate = 1000
 function keydown(evt) {
   console.log('key: ',evt.key)
   if (evt.key == 'ArrowUp'&&!k_up) {k_up = true}
@@ -51,7 +51,8 @@ function keydown(evt) {
   if (evt.key == 'Shift'&&!k_A) {
     k_A = true
     k_A_down = true}
-  if (evt.key == 'z'&&!k_B) {k_B = true}
+  if (evt.key == 'z'&&!k_B) {
+    if (frame_rate==1000) {frame_rate=30} else {frame_rate=1000}k_B = true}
   if (evt.key == 'x'&&!k_C) {k_C = true}
   if (evt.key == 'Control'&&!k_ctrl) {
     k_ctrl = true
@@ -102,7 +103,7 @@ Map.prototype.render = function () {
         36,0,    //x,y on tiles
         36,36,  //w,h on tiles
                      (n%this.w)*32-marble.x+W/2-2,
-          -Math.floor(n/this.w)*32+marble.y+H/2-2,
+          -Math.floor(n/this.w)*32+marble.y+H/2-2-32,
         //W/2-9,H/2-14-this.z,    //x,y on canvas
         36,36)}}
   for (n=0;n<this.w*this.h;n++) {
@@ -112,7 +113,7 @@ Map.prototype.render = function () {
         0,0,    //x,y on tiles
         36,36,  //w,h on tiles
                      (n%this.w)*32-marble.x+W/2-2,
-          -Math.floor(n/this.w)*32+marble.y+H/2-2,
+          -Math.floor(n/this.w)*32+marble.y+H/2-2-32,
         //W/2-9,H/2-14-this.z,    //x,y on canvas
         36,36)}}}
 
@@ -151,31 +152,31 @@ function Marble(inputs) {
 Marble.prototype.update = function () {
   this.ctrl.update()
   this.xsp += this.ctrl.move[0]
+
+  this.xc=0; this.yc=0//collision correction
   if (map.check(this.x+this.xsp,this.y)) {
-    this.xsp=0} else {this.x += this.xsp}
+    this.xc=this.xsp
+    while (map.check(this.x+this.xc,this.y)) {
+      if (this.xsp>0) {this.xc--} else if (this.xsp<0) {this.xc++}}
+    this.xsp=0}
   if (map.check(this.x,this.y+this.ysp)) {
-    this.ysp=0} else {this.y += this.ysp}
-    this.y += this.ysp
+    this.yc+=this.ysp
+    while (map.check(this.x,this.y+this.yc)) {
+      if (this.ysp>0) {this.yc--} else if (this.ysp<0) {this.yc++}}
+    this.ysp=0}
+  this.x+=this.xc
+  this.y+=this.yc
+
+
+  this.x += this.xsp
   this.xsp = this.xsp/1.1
 
-  if (this.cooldown>0) {this.cooldown--}
-  if (this.ctrl._A) {
-    audio.play();
-    this.strike = 16}
-  while (map.check(this.x,this.y)) { //land on floor precisely
-    this.y++
-    this.ysp=0}
-  wallhit=0
-  if (!this.xsp==0) {
-    while (map.check(this.x+this.xsp,this.y)) { //hit walls precisely
-           if (this.xsp>0) {this.x--;wallhit=true}
-      else if (this.xsp<0) {this.x++;wallhit=true}}
-    if (wallhit) {this.xsp = 0;wallhit=false}}
-  if (map.check(this.x,this.y-1)&&!map.check(this.x,this.y)) {
-    if (this.ctrl.jump) {this.ysp = 10}} // jump
+  if (map.check(this.x,this.y-1)&&!map.check(this.x,this.y+1)) {
+    if (this.ctrl.jump) {this.ysp = 20}} // jump
   else { // fall
-    this.ysp--
-    this.y += this.ysp} }
+    this.ysp--} 
+  this.y += this.ysp
+  if (this.y<=32) {reset()}}
 Marble.prototype.render = function () {
   ctx.fillStyle = '#000000'
   if (map.check(this.x,this.y)) {ctx.fillStyle = '#8888ff'}
@@ -183,8 +184,12 @@ Marble.prototype.render = function () {
     droplet,
     0,0,    //x,y on tiles
     34,34,  //w,h on tiles
-    W/2-17,H/2-1, //x,y on canvas
+    W/2-17,H/2-33, //x,y on canvas
     34,34)
+  ctx.beginPath()
+    ctx.moveTo(W/2,H/2-2)
+    ctx.lineTo(W/2+this.xsp,H/2-this.ysp-2)
+    ctx.stroke()
   //ctx.beginPath();
   //ctx.arc(H/2,W/2,16,0,2*Math.PI);
   //ctx.fill()
@@ -241,7 +246,7 @@ function execute () {
 
     resetKeys()
     t++
-    setTimeout(loop,30)}
+    setTimeout(loop,frame_rate)}
   loop()
 }
 execute()
