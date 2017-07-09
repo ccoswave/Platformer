@@ -41,7 +41,7 @@ function resetKeys () {
   k_ctrl_down = false
   k_A_down = false
 }
-frame_rate = 1000
+frame_rate = 30
 function keydown(evt) {
   console.log('key: ',evt.key)
   if (evt.key == 'ArrowUp'&&!k_up) {k_up = true}
@@ -81,7 +81,10 @@ var droplet = new Image();
 droplet.src = "droplet.png";
 
 function rr() {
-  return Math.floor(Math.random()*2)}
+  rrn = Math.floor(Math.random()*5)-3
+  if (rrn>1) {rrn=1}
+  if (rrn<0) {rrn=0}
+  return rrn}
 
 function Map (w,h) {
   this.tsize = 32
@@ -168,7 +171,7 @@ Marble.prototype.update = function () {
   this.y+=this.yc
 
   if (map.check(this.x,this.y-1)&&!map.check(this.x,this.y+1)) {
-    if (this.ctrl.jump) {this.ysp = 20}} // jump
+    if (this.ctrl.jump) {this.ysp = 15}} // jump
   else { // fall
     this.ysp--} 
   this.y += this.ysp
@@ -187,18 +190,11 @@ Marble.prototype.render = function () {
     34,34,  //w,h on tiles
     W/2-17,H/2-33, //x,y on canvas
     34,34)
-  ctx.beginPath()
-    ctx.moveTo(W/2,H/2-2)
-    ctx.lineTo(W/2+this.xsp,H/2-this.ysp-2)
-    ctx.stroke()
-  //ctx.beginPath();
-  //ctx.arc(H/2,W/2,16,0,2*Math.PI);
-  //ctx.fill()
-  //ctx.strokeStyle = '#000000'
-  //ctx.beginPath();
-  //ctx.arc(H/2,W/2,16+this.cooldown,0,2*Math.PI);
-  //ctx.stroke()
-}
+  //ctx.beginPath()
+  //  ctx.moveTo(W/2,H/2-2)
+  //  ctx.lineTo(W/2+this.xsp,H/2-this.ysp-2)
+  //  ctx.stroke()
+  }
 
 
 
